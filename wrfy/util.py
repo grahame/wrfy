@@ -3,6 +3,30 @@ import json
 from progressbar import FormatLabel, Percentage, Bar, RotatingMarker
 
 
+def log_action(s):
+    print("➡ %s" % (s))
+
+
+def log_issue(s):
+    print("⚠ %s" % (s))
+
+
+def log_any_error(fn):
+    try:
+        fn()
+    except Exception as e:
+        print("😞 %s" % (str(e)))
+
+
+def confirm_action(background, question):
+    print(background)
+    return input('🤔 %s [yes/no]: ' % (question)) == 'yes'
+
+
+def truncate_id(s):
+    return s.split(':', 1)[-1][:12]
+
+
 def print_status_stream(title, stream):
     widgets = [title, FormatLabel(''), ' ', Percentage(), ' ', Bar(), ' ', RotatingMarker()]
     bar = progressbar.ProgressBar(widgets=widgets, max_value=255)
@@ -28,3 +52,17 @@ def print_status_stream(title, stream):
             print_status(status)
         else:
             print_unknown(status)
+
+
+def make_registration_decorator():
+    """
+    returns a (decorator, list). any function decorated with
+    the returned decorator will be appended to the list
+    """
+    registered = []
+
+    def _register(fn):
+        registered.append(fn)
+        return fn
+
+    return _register, registered
