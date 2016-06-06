@@ -10,7 +10,7 @@ from .volume import Volume
 from .util import print_status_stream, make_registration_decorator, \
     log_action, log_any_error, log_issue, confirm_action
 from .check import check_latest_image, check_dangling_volumes, \
-    check_untagged_images
+    check_untagged_images, untagged_images_with_usage
 
 register_command, command_fns = make_registration_decorator()
 
@@ -58,16 +58,34 @@ def rm_notrunning(args):
 def rmi_untagged(args):
     "remove all untagged images"
     cli = Client()
-    used_images = {}
-    for container in Container.all(cli, all=True):
-        used_images[container.get('Image')] = container
-    for image in sorted(Image.all(cli, filters={'dangling': True}), key=repr):
-        image_id = image.get('Id')
-        if image_id in used_images:
-            log_issue("not removing image: %s (in use by %s)" % (image, used_images[image_id]))
+    for image, used_by in untagged_images_with_usage(cli):
+        if used_by:
+            log_issue("not removing image: %s (in use by %s)" % (image, used_by))
         else:
             log_action("removing untagged image: %s" % (image))
-            log_any_error(lambda: cli.remove_image(image_id))
+            log_any_error(lambda: cli.remove_image(image.get('Id')))
+
+
+@register_command
+def rm_matching(args):
+    "remove containers whose name matches `pattern'"
+    cli = Client()
+    to_remove = []
+    for container in sorted(Container.all(cli, all=True), key=repr):
+        print(container.get('Name'))
+        if fnmatch(container.get('Name'), args.pattern):
+            to_remove.append(container)
+    if not to_remove:
+        return
+    background = ['The following containers will be deleted:\n']
+    for container in to_remove:
+        background.append(' • %s\n' % (container))
+    if not args.force and not confirm_action(
+            ''.join(background), 'Delete matching containers?'):
+        return
+    for container in to_remove:
+        log_action("removing container via tag: %s" % (container))
+        log_any_error(lambda: cli.remove_container(container.get('Id')))
 
 
 @register_command
@@ -106,6 +124,12 @@ def setup_rmi_matching(subparser):
     subparser.add_argument('pattern', help='glob pattern')
     subparser.add_argument('--force', help='don\'t ask to confirm', action='store_true')
 rmi_matching.setup = setup_rmi_matching
+
+
+def setup_rm_matching(subparser):
+    subparser.add_argument('pattern', help='glob pattern')
+    subparser.add_argument('--force', help='don\'t ask to confirm', action='store_true')
+rm_matching.setup = setup_rm_matching
 
 
 @register_command
