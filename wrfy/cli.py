@@ -70,13 +70,13 @@ def rmi_matching(args):
     if not to_remove:
         return
     background = ['Images with the following tags will be deleted:\n']
-    for image in to_remove:
-        background.append(' • %s\n' % image)
+    for tag in to_remove:
+        background.append(' • %s\n' % (tag))
     if not args.force and not confirm_action(
             ''.join(background), 'Delete matching images?'):
         return
     for tag in to_remove:
-        log_action("removing image via tag: %s" % (image))
+        log_action("removing image via tag: %s" % (tag))
         log_any_error(lambda: cli.remove_image(tag))
 
 
