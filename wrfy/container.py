@@ -16,8 +16,8 @@ class Container:
         return self.descr
 
     @classmethod
-    def all(cls, cli, filters={'status': 'running'}):
+    def all(cls, cli, **kwargs):
         "construct an Image for all images"
         return [
             Container(cli, i['Id'])
-            for i in cli.containers(filters=filters)]
+            for i in cli.containers(**kwargs)]

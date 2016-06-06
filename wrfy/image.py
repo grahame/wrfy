@@ -25,9 +25,9 @@ class Image:
         return self.descr
 
     @classmethod
-    def all(cls, cli, filters={}):
+    def all(cls, cli, **kwargs):
         "construct an Image for all images"
-        return [Image(cli, i['Id']) for i in cli.images(filters=filters)]
+        return [Image(cli, i['Id']) for i in cli.images(**kwargs)]
 
     @classmethod
     def repotags(cls, cli):

@@ -15,3 +15,11 @@ def check_latest_image(cli):
         if running_image_id != current_image_id:
             issues.append('running container %s: launched from outdated version of tag' % (container))
     return issues
+
+
+def check_untagged_images(cli):
+    return []
+
+
+def check_dangling_volumes(cli):
+    return []

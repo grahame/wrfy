@@ -9,7 +9,8 @@ from .container import Container
 from .volume import Volume
 from .util import print_status_stream, make_registration_decorator, \
     log_action, log_any_error, log_issue, confirm_action
-from .check import check_latest_image
+from .check import check_latest_image, check_dangling_volumes, \
+    check_untagged_images
 
 register_command, command_fns = make_registration_decorator()
 
@@ -43,11 +44,13 @@ def kill_all(args):
 
 
 @register_command
-def rm_stopped(args):
+def rm_notrunning(args):
     "remove all stopped containers"
     cli = Client()
-    for container in sorted(Container.all(cli, {'status': 'exited'}), key=repr):
-        log_action("removing stopped container: %s" % (container))
+    for container in sorted(Container.all(cli, all=True), key=repr):
+        if container.get('State', {}).get('Running'):
+            continue
+        log_action("removing container: %s" % (container))
         log_any_error(lambda: cli.remove_container(container.get('Id')))
 
 
@@ -55,9 +58,16 @@ def rm_stopped(args):
 def rmi_untagged(args):
     "remove all untagged images"
     cli = Client()
+    used_images = {}
+    for container in Container.all(cli, all=True):
+        used_images[container.get('Image')] = container
     for image in sorted(Image.all(cli, filters={'dangling': True}), key=repr):
-        log_action("removing untagged image: %s" % (image))
-        log_any_error(lambda: cli.remove_image(image.get('Id')))
+        image_id = image.get('Id')
+        if image_id in used_images:
+            log_issue("not removing image: %s (in use by %s)" % (image, used_images[image_id]))
+        else:
+            log_action("removing untagged image: %s" % (image))
+            log_any_error(lambda: cli.remove_image(image_id))
 
 
 @register_command
@@ -86,6 +96,8 @@ def doctor(args):
     cli = Client()
     issues = []
     issues += check_latest_image(cli)
+    issues += check_dangling_volumes(cli)
+    issues += check_untagged_images(cli)
     for issue in issues:
         log_issue(issue)
 
