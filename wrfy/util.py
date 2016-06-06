@@ -4,23 +4,23 @@ from progressbar import FormatLabel, Percentage, Bar, RotatingMarker
 
 
 def log_action(s):
-    print("➡ %s" % (s))
+    print("➡  %s" % (s))
 
 
 def log_issue(s):
-    print("⚠ %s" % (s))
+    print("⚠  %s" % (s))
 
 
 def log_any_error(fn):
     try:
         fn()
     except Exception as e:
-        print("😞 %s" % (str(e)))
+        print("😞  %s" % (str(e)))
 
 
 def confirm_action(background, question):
     print(background)
-    return input('🤔 %s [yes/no]: ' % (question)) == 'yes'
+    return input('🤔  %s [yes/no]: ' % (question)) == 'yes'
 
 
 def truncate_id(s):
