@@ -18,7 +18,7 @@ def log_issues(header, fix, issues):
     if fix:
         print("💊 %s" % (fix))
     for issue in issues:
-        log_issues(issue)
+        log_issue(issue)
 
 
 def log_any_error(fn):
