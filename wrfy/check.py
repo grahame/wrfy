@@ -30,7 +30,6 @@ def check_latest_image(cli):
 def check_untagged_images(cli):
     issues = []
     for image, used_by in untagged_images_with_usage(cli):
-        print(image, used_by)
         if used_by is None:
             issues.append('image %s: dangling' % (image))
     return issues
