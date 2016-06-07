@@ -8,7 +8,7 @@ from .image import Image
 from .container import Container
 from .volume import Volume
 from .util import print_status_stream, make_registration_decorator, \
-    log_action, log_any_error, log_issue, confirm_action
+    log_action, log_any_error, log_issue, log_issues, confirm_action
 from .check import check_latest_image, check_dangling_volumes, \
     check_untagged_images, untagged_images_with_usage
 
@@ -112,12 +112,9 @@ def rmi_matching(args):
 def doctor(args):
     "check for common issues"
     cli = Client()
-    issues = []
-    issues += check_latest_image(cli)
-    issues += check_dangling_volumes(cli)
-    issues += check_untagged_images(cli)
-    for issue in issues:
-        log_issue(issue)
+    log_issues("containers running from old version of tag", "restart containers", check_latest_image(cli))
+    log_issues("dangling volumes", "wrfy rmv-dangling", check_dangling_volumes(cli))
+    log_issues("dangling dangling images", "wrfy rmi-dangling", check_untagged_images(cli))
 
 
 def setup_rmi_matching(subparser):

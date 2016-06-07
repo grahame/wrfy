@@ -11,6 +11,16 @@ def log_issue(s):
     print("⚠  %s" % (s))
 
 
+def log_issues(header, fix, issues):
+    if not issues:
+        return
+    print(header)
+    if fix:
+        print("💊 %s" % (fix))
+    for issue in issues:
+        log_issues(issue)
+
+
 def log_any_error(fn):
     try:
         fn()
