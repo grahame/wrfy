@@ -9,7 +9,7 @@ def untagged_images_with_usage(cli):
         used_images[container.get('Image')] = container
     for image in sorted(Image.all(cli, filters={'dangling': True}), key=repr):
         image_id = image.get('Id')
-        yield image, used_images[image_id]
+        yield image, used_images.get(image_id)
 
 
 def check_latest_image(cli):
@@ -30,6 +30,7 @@ def check_latest_image(cli):
 def check_untagged_images(cli):
     issues = []
     for image, used_by in untagged_images_with_usage(cli):
+        print(image, used_by)
         if used_by is None:
             issues.append('image %s: dangling' % (image))
     return issues
