@@ -44,7 +44,7 @@ def kill_all(args):
 
 
 @register_command
-def rm_notrunning(args):
+def rm_dangling(args):
     "remove all stopped containers"
     cli = Client()
     for container in sorted(Container.all(cli, all=True), key=repr):
@@ -55,14 +55,14 @@ def rm_notrunning(args):
 
 
 @register_command
-def rmi_untagged(args):
-    "remove all untagged images"
+def rmi_dangling(args):
+    "remove all dangling (untagged) images"
     cli = Client()
     for image, used_by in untagged_images_with_usage(cli):
         if used_by:
             log_issue("not removing image: %s (in use by %s)" % (image, used_by))
         else:
-            log_action("removing untagged image: %s" % (image))
+            log_action("removing dangling image: %s" % (image))
             log_any_error(lambda: cli.remove_image(image.get('Id')))
 
 
