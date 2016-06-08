@@ -44,7 +44,7 @@ def log_any_error(fn):
 
 def confirm_action(background, question):
     print(background)
-    return input('🤔  %s? ["y" to confirm]: ' % (question)) == 'y'
+    return input('🤔  %s? ["y" to confirm]: ' % (question)).startswith('y')
 
 
 def truncate_id(s):
