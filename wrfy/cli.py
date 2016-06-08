@@ -93,13 +93,13 @@ def rmi_dangling(args):
     "remove all dangling (untagged) images"
     cli = Client()
     to_remove = []
-    if not to_remove:
-        return
     for image, used_by in untagged_images_with_usage(cli):
         if used_by:
             log_issue("not removing image: %s (in use by %s)" % (image, used_by))
         else:
             to_remove.append(image)
+    if not to_remove:
+        return
     background = ['The following dangling images will be removed:\n']
     background += [' • %s\n' % (image) for image in to_remove]
     if not args.force and not confirm_action(
