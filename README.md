@@ -1,6 +1,6 @@
 # wrfy ('wharfie')
 
-A grab-bag of useful functionality to keep your docker host tidy, and well maintained.
+A grab-bag of useful functionality to keep your docker host tidy.
 
 `wrfy` is a replacement for a number of fairly hinky shell aliases - hopefully a more
 robust and useful replacement. Anyone who does local development using docker will at
