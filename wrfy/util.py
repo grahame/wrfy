@@ -3,36 +3,36 @@ import json
 from progressbar import FormatLabel, Percentage, Bar, RotatingMarker
 
 
-def log_action(s):
-    print("➡  %s" % (s))
+def log_action(s, pfx):
+    print(pfx + "➡  %s" % (s))
 
 
-def log_issue(s):
-    print("🔥 %s" % (s))
+def log_issue(s, pfx=''):
+    print(pfx + "🔥 %s" % (s))
 
 
-def log_warning(s):
-    print("⚠️  %s" % (s))
+def log_warning(s, pfx=''):
+    print(pfx + "⚠️  %s" % (s))
 
 
 def log_warnings(header, fix, issues):
     if not issues:
         return
-    print(header)
+    print(header + ':')
     for issue in issues:
-        log_warning(issue)
+        log_warning(issue, '  ')
     if fix:
-        print("fix (if desired): %s" % (fix))
+        print("  ➡ fix (if desired): %s" % (fix))
 
 
 def log_issues(header, fix, issues):
     if not issues:
         return
-    print(header)
-    if fix:
-        print("💊 %s" % (fix))
+    print(header + ':')
     for issue in issues:
-        log_issue(issue)
+        log_issue(issue, '  ')
+    if fix:
+        print("  ➡ fix (if desired): %s" % (fix))
 
 
 def log_any_error(fn):
