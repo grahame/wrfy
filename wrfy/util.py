@@ -8,7 +8,21 @@ def log_action(s):
 
 
 def log_issue(s):
-    print("⚠  %s" % (s))
+    print("🔥 %s" % (s))
+
+
+def log_warning(s):
+    print("⚠️  %s" % (s))
+
+
+def log_warnings(header, fix, issues):
+    if not issues:
+        return
+    print(header)
+    for issue in issues:
+        log_warning(issue)
+    if fix:
+        print("fix (if desired): %s" % (fix))
 
 
 def log_issues(header, fix, issues):

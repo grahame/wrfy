@@ -6,11 +6,13 @@ from fnmatch import fnmatch
 
 from .image import Image
 from .container import Container
-from .volume import Volume
 from .util import print_status_stream, make_registration_decorator, \
-    log_action, log_any_error, log_issue, log_issues, confirm_action
+    log_action, log_any_error, log_issue, log_issues, log_warnings, \
+    confirm_action
 from .check import check_latest_image, check_dangling_volumes, \
-    check_untagged_images, untagged_images_with_usage
+    check_untagged_images, untagged_images_with_usage, \
+    check_stopped_containers, stopped_containers, \
+    dangling_volumes
 
 register_command, command_fns = make_registration_decorator()
 
@@ -44,12 +46,10 @@ def kill_all(args):
 
 
 @register_command
-def rm_dangling(args):
-    "remove all stopped containers"
+def rm_stopped(args):
+    "remove all containers which are not running"
     cli = Client()
-    for container in sorted(Container.all(cli, all=True), key=repr):
-        if container.get('State', {}).get('Running'):
-            continue
+    for container in stopped_containers(cli):
         log_action("removing container: %s" % (container))
         log_any_error(lambda: cli.remove_container(container.get('Id')))
 
@@ -115,6 +115,7 @@ def doctor(args):
     log_issues("containers running from old version of tag", "restart containers", check_latest_image(cli))
     log_issues("dangling volumes", "wrfy rmv-dangling", check_dangling_volumes(cli))
     log_issues("dangling dangling images", "wrfy rmi-dangling", check_untagged_images(cli))
+    log_warnings("stopped containers", "wrfy rm-stoppped (... but check with docker ps -a first)", check_stopped_containers(cli))
 
 
 def setup_rmi_matching(subparser):
@@ -133,7 +134,7 @@ rm_matching.setup = setup_rm_matching
 def rmv_dangling(args):
     "remove all dangling volumes"
     cli = Client()
-    for volume in sorted(Volume.all(cli, filters={'dangling': True}), key=repr):
+    for volume in dangling_volumes(cli):
         log_action("removing dangling volume: %s" % (volume))
         cli.remove_volume(volume.get('Name'))
 

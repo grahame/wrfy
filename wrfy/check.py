@@ -12,6 +12,15 @@ def untagged_images_with_usage(cli):
         yield image, used_images.get(image_id)
 
 
+def dangling_volumes(cli):
+    yield from sorted(Volume.all(cli, filters={'dangling': True}), key=repr)
+
+
+def stopped_containers(cli):
+    yield from (container for container in sorted(Container.all(cli, all=True), key=repr)
+                if not container.get('State', {}).get('Running'))
+
+
 def check_latest_image(cli):
     issues = []
     for container in Container.all(cli):
@@ -37,6 +46,14 @@ def check_untagged_images(cli):
 
 def check_dangling_volumes(cli):
     issues = []
-    for volume in sorted(Volume.all(cli, filters={'dangling': True}), key=repr):
+    for volume in dangling_volumes(cli):
         issues.append('volumes %s: dangling' % (volume))
-    return []
+    return issues
+
+
+def check_stopped_containers(cli):
+    issues = []
+    stopped_count = len(list(stopped_containers(cli)))
+    if stopped_count > 0:
+        issues.append('%d stopped containers - possibly unneeded' % (stopped_count))
+    return issues
