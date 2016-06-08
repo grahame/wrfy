@@ -3,7 +3,7 @@ from .util import truncate_id
 
 class Volume:
     unlabelled = '<unlabelled>'
-    
+
     def __init__(self, cli, volume_id):
         self.info = cli.inspect_volume(volume_id)
 
@@ -11,12 +11,16 @@ class Volume:
         return self.info.get(*args, **kwargs)
 
     @property
+    def name(self):
+        return self.info.get('Name')
+
+    @property
     def descr(self):
         name = Volume.unlabelled
         labels = self.info['Labels']
         if labels:
             name = labels[0]
-        return '%s[%s]' % (name, truncate_id(self.info['Name']))
+        return '%s[%s]' % (name, truncate_id(self.name))
 
     def __repr__(self):
         return self.descr

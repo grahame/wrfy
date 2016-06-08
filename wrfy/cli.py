@@ -1,5 +1,6 @@
 import argparse
 import sys
+import re
 
 from docker import Client
 from fnmatch import fnmatch
@@ -66,19 +67,41 @@ def rmi_dangling(args):
             log_any_error(lambda: cli.remove_image(image.get('Id')))
 
 
+def match_iterator_glob_or_regexp(args, iterator, apply_fn):
+    """
+    returns the matching objects from `iterator`, using fnmatch
+    unless args.e is set, in which case regular expression is used.
+    `apply_fn` is applied to each object, returning a string to
+    check match against.
+    """
+    if args.e:
+        r = re.compile(args.pattern)
+
+        def matcher(s):
+            return r.match(s)
+    else:
+        def matcher(s):
+            return fnmatch(s, args.pattern)
+
+    for obj in iterator:
+        match = apply_fn(obj)
+        if matcher(match):
+            yield obj
+
+
 @register_command
 def rm_matching(args):
     "remove containers whose name matches `pattern'"
     cli = Client()
-    to_remove = []
-    for container in sorted(Container.all(cli, all=True), key=repr):
-        print(container.get('Name'))
-        if fnmatch(container.get('Name'), args.pattern):
-            to_remove.append(container)
+    to_remove = list(
+        match_iterator_glob_or_regexp(
+            args,
+            stopped_containers(cli),
+            lambda c: c.name))
     if not to_remove:
         return
     background = ['The following containers will be deleted:\n']
-    for container in to_remove:
+    for container in sorted(to_remove, key=repr):
         background.append(' • %s\n' % (container))
     if not args.force and not confirm_action(
             ''.join(background), 'Delete matching containers?'):
@@ -92,13 +115,20 @@ def rm_matching(args):
 def rmi_matching(args):
     "remove images which have tags matching `pattern'"
     cli = Client()
-    to_remove = []
-    for image in sorted(Image.all(cli), key=repr):
-        to_remove += [tag for tag in image.tags if fnmatch(tag, args.pattern)]
+
+    def all_image_tags():
+        for image in Image.all(cli):
+            for tag in image.tags:
+                yield tag
+    to_remove = list(
+        match_iterator_glob_or_regexp(
+            args,
+            all_image_tags(),
+            lambda t: t))
     if not to_remove:
         return
     background = ['Images with the following tags will be deleted:\n']
-    for tag in to_remove:
+    for tag in sorted(to_remove):
         background.append(' • %s\n' % (tag))
     if not args.force and not confirm_action(
             ''.join(background), 'Delete matching images?'):
@@ -119,13 +149,15 @@ def doctor(args):
 
 
 def setup_rmi_matching(subparser):
-    subparser.add_argument('pattern', help='glob pattern')
+    subparser.add_argument('pattern', help='pattern (by default, glob)')
+    subparser.add_argument('-e', help='treat pattern as regular expression', action='store_true')
     subparser.add_argument('--force', help='don\'t ask to confirm', action='store_true')
 rmi_matching.setup = setup_rmi_matching
 
 
 def setup_rm_matching(subparser):
-    subparser.add_argument('pattern', help='glob pattern')
+    subparser.add_argument('pattern', help='pattern (by default, glob)')
+    subparser.add_argument('-e', help='treat pattern as regular expression', action='store_true')
     subparser.add_argument('--force', help='don\'t ask to confirm', action='store_true')
 rm_matching.setup = setup_rm_matching
 
@@ -136,7 +168,7 @@ def rmv_dangling(args):
     cli = Client()
     for volume in dangling_volumes(cli):
         log_action("removing dangling volume: %s" % (volume))
-        cli.remove_volume(volume.get('Name'))
+        cli.remove_volume(volume.name)
 
 
 def version():

@@ -9,8 +9,12 @@ class Container:
         return self.info.get(*args, **kwargs)
 
     @property
+    def name(self):
+        return self.info['Name'].rsplit('/', 1)[1]
+
+    @property
     def descr(self):
-        return '%s[%s, %s]' % (self.info['Name'], self.info['Config']['Image'], truncate_id(self.info['Id']))
+        return '%s[%s, %s]' % (self.name, self.info['Config']['Image'], truncate_id(self.info['Id']))
 
     def __repr__(self):
         return self.descr
