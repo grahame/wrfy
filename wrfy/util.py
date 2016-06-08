@@ -3,7 +3,7 @@ import json
 from progressbar import FormatLabel, Percentage, Bar, RotatingMarker
 
 
-def log_action(s, pfx):
+def log_action(s, pfx=''):
     print(pfx + "➡  %s" % (s))
 
 

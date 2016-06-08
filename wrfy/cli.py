@@ -41,7 +41,15 @@ def pull_all(args):
 def kill_all(args):
     "kill all running containers"
     cli = Client()
-    for container in Container.all(cli):
+    to_kill = list(sorted(Container.all(cli), key=repr))
+    if not to_kill:
+        return
+    background = ['The following running containers will be killed:\n']
+    background += [' • %s\n' % (container) for container in to_kill]
+    if not args.force and not confirm_action(
+            ''.join(background), 'Kill containers?'):
+        return
+    for container in to_kill:
         log_action("killing container: %s" % (container))
         log_any_error(lambda: cli.kill(container.get('Id')))
 
@@ -50,21 +58,65 @@ def kill_all(args):
 def rm_stopped(args):
     "remove all containers which are not running"
     cli = Client()
-    for container in stopped_containers(cli):
+    to_remove = list(stopped_containers(cli))
+    if not to_remove:
+        return
+    background = ['The following stopped containers will be removed:\n']
+    background += [' • %s\n' % (container) for container in to_remove]
+    if not args.force and not confirm_action(
+            ''.join(background), 'Remove containers?'):
+        return
+    for container in to_remove:
         log_action("removing container: %s" % (container))
         log_any_error(lambda: cli.remove_container(container.get('Id')))
+
+
+@register_command
+def rmv_dangling(args):
+    "remove all dangling volumes"
+    cli = Client()
+    to_remove = list(dangling_volumes(cli))
+    if not to_remove:
+        return
+    background = ['The following dangling volumes will be removed:\n']
+    background += [' • %s\n' % (volume) for volume in to_remove]
+    if not args.force and not confirm_action(
+            ''.join(background), 'Remove volumes?'):
+        return
+    for volume in to_remove:
+        log_action("removing dangling volume: %s" % (volume))
+        cli.remove_volume(volume.name)
 
 
 @register_command
 def rmi_dangling(args):
     "remove all dangling (untagged) images"
     cli = Client()
+    to_remove = []
+    if not to_remove:
+        return
     for image, used_by in untagged_images_with_usage(cli):
         if used_by:
             log_issue("not removing image: %s (in use by %s)" % (image, used_by))
         else:
-            log_action("removing dangling image: %s" % (image))
-            log_any_error(lambda: cli.remove_image(image.get('Id')))
+            to_remove.append(image)
+    background = ['The following dangling images will be removed:\n']
+    background += [' • %s\n' % (image) for image in to_remove]
+    if not args.force and not confirm_action(
+            ''.join(background), 'Remove images?'):
+        return
+    for image in to_remove:
+        log_action("removing dangling image: %s" % (image))
+        log_any_error(lambda: cli.remove_image(image.get('Id')))
+
+
+def setup_force(subparser):
+    subparser.add_argument('--force', help='don\'t ask to confirm', action='store_true')
+
+kill_all.setup = setup_force
+rm_stopped.setup = setup_force
+rmi_dangling.setup = setup_force
+rmv_dangling.setup = setup_force
 
 
 def match_iterator_glob_or_regexp(args, iterator, apply_fn):
@@ -148,27 +200,12 @@ def doctor(args):
     log_warnings("stopped containers", "wrfy rm-stoppped (... but check with docker ps -a first)", check_stopped_containers(cli))
 
 
-def setup_rmi_matching(subparser):
+def setup_globrm(subparser):
     subparser.add_argument('pattern', help='pattern (by default, glob)')
     subparser.add_argument('-e', help='treat pattern as regular expression', action='store_true')
     subparser.add_argument('--force', help='don\'t ask to confirm', action='store_true')
-rmi_matching.setup = setup_rmi_matching
-
-
-def setup_rm_matching(subparser):
-    subparser.add_argument('pattern', help='pattern (by default, glob)')
-    subparser.add_argument('-e', help='treat pattern as regular expression', action='store_true')
-    subparser.add_argument('--force', help='don\'t ask to confirm', action='store_true')
-rm_matching.setup = setup_rm_matching
-
-
-@register_command
-def rmv_dangling(args):
-    "remove all dangling volumes"
-    cli = Client()
-    for volume in dangling_volumes(cli):
-        log_action("removing dangling volume: %s" % (volume))
-        cli.remove_volume(volume.name)
+rm_matching.setup = setup_globrm
+rmi_matching.setup = setup_globrm
 
 
 def version():
