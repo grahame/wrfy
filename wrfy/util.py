@@ -4,15 +4,15 @@ from progressbar import FormatLabel, Percentage, Bar, RotatingMarker
 
 
 def log_action(s, pfx=''):
-    print(pfx + "➡  %s" % (s))
+    print(pfx + " - %s" % (s))
 
 
 def log_issue(s, pfx=''):
-    print(pfx + "🔥 %s" % (s))
+    print(pfx + " issue: %s" % (s))
 
 
 def log_warning(s, pfx=''):
-    print(pfx + "⚠️  %s" % (s))
+    print(pfx + "warning:  %s" % (s))
 
 
 def log_warnings(header, fix, issues):
@@ -22,7 +22,7 @@ def log_warnings(header, fix, issues):
     for issue in issues:
         log_warning(issue, '  ')
     if fix:
-        print("  ➡ fix (if desired): %s" % (fix))
+        print("  fix: %s" % (fix))
 
 
 def log_issues(header, fix, issues):
@@ -32,19 +32,19 @@ def log_issues(header, fix, issues):
     for issue in issues:
         log_issue(issue, '  ')
     if fix:
-        print("  ➡ fix (if desired): %s" % (fix))
+        print("  fix: %s" % (fix))
 
 
 def log_any_error(fn):
     try:
         fn()
     except Exception as e:
-        print("😞  %s" % (str(e)))
+        print("error:  %s" % (str(e)))
 
 
 def confirm_action(background, question):
     print(background)
-    return input('🤔  %s ["y" to confirm]: ' % (question)).startswith('y')
+    return input('%s [yN] ' % (question)).startswith('y')
 
 
 def truncate_id(s):
