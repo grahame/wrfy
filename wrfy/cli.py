@@ -45,7 +45,7 @@ def kill_all(args):
     if not to_kill:
         return
     background = ['The following running containers will be killed:\n']
-    background += [' • %s\n' % (container) for container in to_kill]
+    background += [' - %s\n' % (container) for container in to_kill]
     if not args.force and not confirm_action(
             ''.join(background), 'Kill containers?'):
         return
@@ -62,7 +62,7 @@ def rm_stopped(args):
     if not to_remove:
         return
     background = ['The following stopped containers will be removed:\n']
-    background += [' • %s\n' % (container) for container in to_remove]
+    background += [' - %s\n' % (container) for container in to_remove]
     if not args.force and not confirm_action(
             ''.join(background), 'Remove containers?'):
         return
@@ -79,7 +79,7 @@ def rmv_dangling(args):
     if not to_remove:
         return
     background = ['The following dangling volumes will be removed:\n']
-    background += [' • %s\n' % (volume) for volume in to_remove]
+    background += [' - %s\n' % (volume) for volume in to_remove]
     if not args.force and not confirm_action(
             ''.join(background), 'Remove volumes?'):
         return
@@ -101,7 +101,7 @@ def rmi_dangling(args):
     if not to_remove:
         return
     background = ['The following dangling images will be removed:\n']
-    background += [' • %s\n' % (image) for image in to_remove]
+    background += [' - %s\n' % (image) for image in to_remove]
     if not args.force and not confirm_action(
             ''.join(background), 'Remove images?'):
         return
@@ -154,7 +154,7 @@ def rm_matching(args):
         return
     background = ['The following containers will be deleted:\n']
     for container in sorted(to_remove, key=repr):
-        background.append(' • %s\n' % (container))
+        background.append(' - %s\n' % (container))
     if not args.force and not confirm_action(
             ''.join(background), 'Delete matching containers?'):
         return
@@ -181,7 +181,7 @@ def rmi_matching(args):
         return
     background = ['Images with the following tags will be deleted:\n']
     for tag in sorted(to_remove):
-        background.append(' • %s\n' % (tag))
+        background.append(' - %s\n' % (tag))
     if not args.force and not confirm_action(
             ''.join(background), 'Delete matching images?'):
         return
