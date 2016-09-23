@@ -1,0 +1,10 @@
+#!/bin/bash
+
+wrfy="docker run --rm \
+                 --interactive \
+                 --tty \
+                 --net "host" \
+                 -v /var/run/docker.sock:/var/run/docker.sock \
+                 -it wrfy"
+
+exec $wrfy $*
