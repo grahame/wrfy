@@ -5,6 +5,6 @@ wrfy="docker run --rm \
                  --tty \
                  --net "host" \
                  -v /var/run/docker.sock:/var/run/docker.sock \
-                 -it wrfy"
+                 -it angrygoat/wrfy:latest"
 
 exec $wrfy $*
