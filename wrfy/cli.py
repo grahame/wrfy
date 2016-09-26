@@ -110,6 +110,14 @@ def rmi_dangling(args):
         log_any_error(lambda: cli.remove_image(image.get('Id')))
 
 
+@register_command
+def scrub(args):
+    "remove all stopped containers, dangling images and volumes"
+    rm_stopped(args)
+    rmi_dangling(args)
+    rmv_dangling(args)
+
+
 def setup_force(subparser):
     subparser.add_argument('--force', help='don\'t ask to confirm', action='store_true')
 
@@ -117,6 +125,7 @@ kill_all.setup = setup_force
 rm_stopped.setup = setup_force
 rmi_dangling.setup = setup_force
 rmv_dangling.setup = setup_force
+scrub.setup = setup_force
 
 
 def match_iterator_glob_or_regexp(args, iterator, apply_fn):
