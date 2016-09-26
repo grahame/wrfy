@@ -71,3 +71,9 @@ probably came from `docker-compose`.
 
 `wrfy rmv-dangling` will remove all dangling volumes - volumes not attached to any container.
 It asks for confirmation, unless `--force` is passed as an argument.
+
+## scrub
+
+`wrfy scrub` chains together `rm_stopped`, `rmi_dangling`, and `rmv_dangling`.
+It asks for confirmation at each stage, unless `--force` is passed as an argument.
+
