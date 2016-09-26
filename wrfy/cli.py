@@ -197,7 +197,7 @@ def doctor(args):
     log_issues("containers running from old version of tag", "restart containers", check_latest_image(cli))
     log_issues("dangling volumes", "wrfy rmv-dangling", check_dangling_volumes(cli))
     log_issues("dangling images", "wrfy rmi-dangling", check_untagged_images(cli))
-    log_warnings("stopped containers", "wrfy rm-stoppped", check_stopped_containers(cli))
+    log_warnings("stopped containers", "wrfy rm-stopped", check_stopped_containers(cli))
 
 
 def setup_globrm(subparser):
