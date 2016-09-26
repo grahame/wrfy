@@ -1,5 +1,6 @@
 import progressbar
 import json
+import sys
 from progressbar import FormatLabel, Percentage, Bar, RotatingMarker
 
 
@@ -53,7 +54,9 @@ def truncate_id(s):
 
 def print_status_stream(title, stream):
     widgets = [title, FormatLabel(''), ' ', Percentage(), ' ', Bar(), ' ', RotatingMarker()]
-    bar = progressbar.ProgressBar(widgets=widgets, max_value=255)
+    bar = None
+    if sys.stderr.isatty():
+        bar = progressbar.ProgressBar(widgets=widgets, max_value=255)
 
     def print_error(status):
         print(status['error'])
@@ -63,7 +66,8 @@ def print_status_stream(title, stream):
         if progress:
             widgets[1] = FormatLabel("%12s" % (status['status']))
             prog = int(round(255 * ((progress['current'] / progress['total']))))
-            bar.update(prog)
+            if bar is not None:
+                bar.update(prog)
 
     def print_unknown(status):
         print(status)
