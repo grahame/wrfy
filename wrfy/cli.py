@@ -27,14 +27,18 @@ def pull_all(args):
             title = '%*s' % (pad, title)
         return title
 
+    def pull_tags(tags):
+        pad = max(len(status_title(t)) for t in tags)
+        for tag in sorted(tags):
+            log_action("pulling tag: %s" % (tag))
+            print_status_stream(
+                status_title(tag, pad),
+                cli.pull(tag, stream=True))
+
     cli = Client()
     tags = Image.repotags(cli)
-    pad = max(len(status_title(t)) for t in tags)
-    for tag in sorted(tags):
-        log_action("pulling tag: %s" % (tag))
-        print_status_stream(
-            status_title(tag, pad),
-            cli.pull(tag, stream=True))
+    if tags:
+        pull_tags(tags)
 
 
 @register_command
