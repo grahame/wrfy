@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 if not sys.version_info[0] == 3:
     sys.exit("Sorry, this is a Python 3 utility")
 
-install_requires = ["docker-py==1.8.1", "progressbar2==3.5.0"]
+install_requires = ["docker==2.0.2", "progressbar2==3.5.0"]
 
 setup(
     author="Grahame Bowland",
