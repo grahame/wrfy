@@ -1,4 +1,4 @@
-# `wrfy` ("wharfie")
+# `wrfy` /wharfie/
 
 > *minimal CLI tool to smooth your docker local dev experience*
 
