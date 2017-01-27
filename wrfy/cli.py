@@ -2,7 +2,8 @@ import argparse
 import sys
 import re
 
-from docker import Client
+from docker import APIClient as Client
+from docker.errors import APIError
 from fnmatch import fnmatch
 
 from .image import Image
@@ -31,9 +32,12 @@ def pull_all(args):
         pad = max(len(status_title(t)) for t in tags)
         for tag in sorted(tags):
             log_action("pulling tag: %s" % (tag))
-            print_status_stream(
-                status_title(tag, pad),
-                cli.pull(tag, stream=True))
+            try:
+                print_status_stream(
+                    status_title(tag, pad),
+                    cli.pull(tag, stream=True))
+            except APIError as err:
+                print(err)
 
     cli = Client()
     tags = Image.repotags(cli)
