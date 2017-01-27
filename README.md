@@ -1,13 +1,14 @@
-# wrfy ('wharfie')
+# `wrfy` ("wharfie")
 
-A grab-bag of useful functionality to keep your docker host tidy.
+> *minimal CLI tool to smooth your docker local dev experience*
 
-`wrfy` is a replacement for a number of fairly hinky shell aliases - hopefully a more
-robust and useful replacement. Anyone who does local development using docker will at
-some point have wondered how to get rid of old containers, old images, and dangling
-volumes. `wrfy` has been written to help you out. See the list of functionality below.
+`wrfy` provides a dozen or so commands to automate common operations on a docker development or CI host. Want to pull all images? Delete images matching a regexp? Clean up dangling volumes? You've come to the right place.
 
-# Included functionality
+# installation
+
+```$ pip3 install wrfy```
+
+# `wrfy` commands
 
 ## doctor
 
