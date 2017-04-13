@@ -5,5 +5,6 @@
 __pycache__
 *.egg-info
 .ropeproject
+.vscode/
 build/
 dist/
