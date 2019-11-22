@@ -18,7 +18,9 @@ class Volume:
     def descr(self):
         name = Volume.unlabelled
         labels = self.info['Labels']
-        if labels:
+        if type(labels) is dict:
+            name = 'named<{}>'.format(labels)
+        elif labels:
             name = labels[0]
         return '%s[%s]' % (name, truncate_id(self.name))
 
@@ -28,6 +30,11 @@ class Volume:
     @classmethod
     def all(cls, cli, **kwargs):
         "construct an Image for all images"
+
+        def is_named(volume_id):
+            info = cli.inspect_volume(volume_id)
+            return type(info['Labels']) is dict
+
         response = cli.volumes(**kwargs)
         volumes = response['Volumes'] or []
-        return [Volume(cli, i['Name']) for i in volumes]
+        return [Volume(cli, i['Name']) for i in volumes if not is_named(i['Name'])]
