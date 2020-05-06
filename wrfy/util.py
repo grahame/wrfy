@@ -73,7 +73,10 @@ def print_status_stream(title, stream):
         print(status)
 
     for line in stream:
-        status = json.loads(line.decode('utf8'))
+        try:
+            status = json.loads(line.decode('utf8'))
+        except json.JSONDecodeError:
+            continue
         if 'error' in status:
             print_error(status)
         elif 'status' in status:

@@ -1,0 +1,53 @@
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "wrfy"
+version = "0.9.0"
+authors = ["Grahame Bowland <grahame@oreamnos.com.au>"]
+description = "Simple bulk operations for Docker"
+readme = "README.md"
+
+[tool.poetry.scripts]
+wrfy = 'wrfy.cli:main'
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+docker = "^2.7.0"
+progressbar2 = "^3.5.0"
+
+[tool.poetry.dev-dependencies]
+black = "^19.10b0"
+tox = "^3.14.6"
+flake8 = "^3.7.9"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py38
+isolated_build = True
+
+[testenv]
+deps=pytest
+commands=pytest
+"""
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | tests/.*/setup.py
+)/
+'''
