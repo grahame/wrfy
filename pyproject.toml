@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "wrfy"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Grahame Bowland <grahame@oreamnos.com.au>"]
 description = "Simple bulk operations for Docker"
 readme = "README.md"
@@ -13,19 +13,20 @@ readme = "README.md"
 wrfy = 'wrfy.cli:main'
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.7,<4"
 docker = "^2.7.0"
 progressbar2 = "^3.5.0"
 
 [tool.poetry.dev-dependencies]
-black = "^19.10b0"
-tox = "^3.14.6"
-flake8 = "^3.7.9"
+black = "*"
+tox = "*"
+flake8 = "*"
+pytest = "*"
 
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py38
+envlist = py39
 isolated_build = True
 
 [testenv]
